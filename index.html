@@ -18,7 +18,8 @@
     <h1>Seeds Index</h1>
     <div id="seed-list">Loading files from repository...</div>
 
-    <script>const USERNAME = 'sustance';
+    <script>
+const USERNAME = 'sustance';
 const REPO = 'raw-hard-speculative';
 const FOLDER = 'seeds'; 
 const LINES_TO_EXTRACT = 4;
@@ -27,8 +28,8 @@ async function fetchSeeds() {
     const container = document.getElementById('seed-list');
     
     try {
-        // Targets your exact repository path
-        const url = `https://github.com{USERNAME}/${REPO}/contents/${FOLDER}`;
+        // Fixed: Use api.github.com, not github.com
+        const url = `https://api.github.com/repos/${USERNAME}/${REPO}/contents/${FOLDER}`;
         const response = await fetch(url);
         
         if (!response.ok) throw new Error(`GitHub API Error: ${response.status}`);
@@ -49,7 +50,7 @@ async function fetchSeeds() {
                 card.className = 'file-card';
                 card.innerHTML = `
                     <a class="file-link" href="${item.html_url}" target="_blank">${item.name}</a>
-                    <div class="description">${description || '(No content inside file)'}</div>
+                    <div class="description">${escapeHtml(description) || '(No content inside file)'}</div>
                 `;
                 container.appendChild(card);
             }
@@ -59,5 +60,15 @@ async function fetchSeeds() {
         container.innerHTML = `<div class="error-box"><strong>Error:</strong> ${error.message}</div>`;
     }
 }
+
+// Helper function to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 fetchSeeds();
-</script></body></html>
+</script>
+</body>
+</html>
