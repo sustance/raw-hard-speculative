@@ -1,3 +1,4 @@
+### The Digital Homesteader
 The central character in the story is was born and grew up in 1950’s in a pioneering country.
 A central theme of novels, mythology and hollywood influenced culture was USA wild west pioneer.
 The pioneer is said to be ale to walk into wild untamed country. 
