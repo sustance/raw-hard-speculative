@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seeds Directory</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .file-card { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        .file-link { font-size: 1.2rem; font-weight: bold; color: #0366d6; text-decoration: none; }
+        .file-link:hover { text-decoration: underline; }
+        .description { color: #555; background: #f6f8fa; padding: 10px; border-radius: 5px; margin-top: 5px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+
+    <h1>Seeds Index</h1>
+    <div id="seed-list">Loading files from repository...</div>
+
+    <script>
+        // CONFIGURATION: Change these to match your GitHub details
+        const USERNAME = 'your-github-username';
+        const REPO = 'your-repo-name';
+        const FOLDER = 'seeds'; 
+        const LINES_TO_EXTRACT = 4; // Change this number to extract more/fewer lines
+
+        async function fetchSeeds() {
+            const container = document.getElementById('seed-list');
+            
+            try {
+                // Fetch the list of files in the folder using public GitHub API
+                const url = `https://github.com{USERNAME}/${REPO}/contents/${FOLDER}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) throw new Error('Could not read the seeds directory');
+                const items = await response.json();
+
+                container.innerHTML = ''; // Clear loading message
+
+                // Loop through items found in the folder
+                for (const item of items) {
+                    if (item.type === 'file') {
+                        
+                        // 1. Fetch raw text content of the individual file
+                        const fileContentResponse = await fetch(item.download_url);
+                        const fullText = await fileContentResponse.text();
+                        
+                        // 2. Extract the first few lines
+                        const lines = fullText.split(/\r?\n/).slice(0, LINES_TO_EXTRACT);
+                        const description = lines.join('\n');
+
+                        // 3. Generate the absolute URL to display the raw file in the browser
+                        // Alternatively, use item.html_url to link to the GitHub code view interface
+                        const directFileUrl = item.download_url; 
+
+                        // 4. Inject structural HTML elements into the page
+                        const card = document.createElement('div');
+                        card.className = 'file-card';
+                        card.innerHTML = `
+                            <a class="file-link" href="${directFileUrl}" target="_blank">${item.name}</a>
+                            <div class="description">${description}</div>
+                        `;
+                        container.appendChild(card);
+                    }
+                }
+            } catch (error) {
+                container.innerHTML = `<p style="color:red;">Error: ${error.message}. Please check your username and repo naming configuration.</p>`;
+            }
+        }
+
+        // Initialize script execution on page load
+        fetchSeeds();
+    </script>
+</body>
+</html>
